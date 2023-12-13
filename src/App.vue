@@ -1,15 +1,12 @@
 <template>
-  <div>
-    <h1>剂量快速计算</h1>
-  </div>
+  <DHeader />
+  <DMain />
 </template>
 
 <script setup>
-import { onBeforeMount } from 'vue';
-import { get100Vh } from './utils/device';
-import './style.css';
+import DHeader from '@/view/header/DHeader.vue';
+import DMain from '@/view/main/DMain.vue';
+import { get100Vh } from '@/utils/device.js';
 
-onBeforeMount(() => {
-  document.body.style.setProperty('--vh', get100Vh());
-});
+document.body.style.setProperty('--vh', get100Vh());
 </script>
