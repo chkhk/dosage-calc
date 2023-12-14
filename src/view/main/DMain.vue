@@ -10,15 +10,24 @@
       </t-cell>
       <t-cell
         arrow
-        :title="changeDrugInfo.name"
+        :title="currentDrugData.name"
         :hover="true"
-        @click="drugPopupShow = true"
+        @click="drugPickerShow = true"
       >
-        <t-tag variant="outline" shape="round">
-          <code
-            >{{ changeDrugInfo.volume }} ml |
-            {{ changeDrugInfo.weight }} g</code
-          >
+        <t-tag
+          :theme="doseTypeData[currentDrugData.dose].theme"
+          variant="outline"
+          shape="round"
+        >
+          <code>
+            {{ doseTypeData[currentDrugData.dose].label }}
+          </code>
+        </t-tag>
+        <t-tag variant="outline" shape="round" style="margin-left: 10px">
+          <code>
+            {{ currentDrugData.volume }} {{ currentDrugData.unitsVol }} |
+            {{ currentDrugData.weight }} {{ currentDrugData.unitsWt }}
+          </code>
         </t-tag>
       </t-cell>
     </t-cell-group>
@@ -33,19 +42,18 @@
       </t-cell>
       <t-cell>
         <t-input
-          v-model="weightNumber"
+          v-model="weightInput"
           borderless
           label="克重"
           placeholder="在这里输入（0g ~ 100g）"
           :clearable="true"
-          :tips="weightNumber * 1000 + 'mg'"
           type="number"
           min="0"
           max="100"
           class="weight-input"
         >
           <template #suffix>
-            <code>g</code>
+            <code>{{ currentDrugData.unitsWt }}</code>
           </template>
         </t-input>
       </t-cell>
@@ -63,10 +71,11 @@
       </t-cell>
       <t-cell>
         <template #title>
-          <h2 class="calc-result"><code v-html="calcResult"></code></h2>
+          <h2 class="calc-result"><code v-html="calcResultStr"></code></h2>
         </template>
       </t-cell>
     </t-cell-group>
+
     <t-divider />
 
     <t-cell-group>
@@ -77,7 +86,7 @@
       </t-cell>
       <t-cell>
         <template #title>
-          <code v-html="calcStr"></code>
+          <code v-html="calcProcessStr"></code>
         </template>
       </t-cell>
     </t-cell-group>
@@ -86,7 +95,7 @@
 
     <t-collapse
       :value="collapseValues"
-      @change="handleChange"
+      @change="changeCollapse"
       style="margin-top: 30px"
     >
       <t-collapse-panel
@@ -170,14 +179,16 @@
       style="margin-top: 30px"
     />
 
-    <t-popup v-model="drugPopupShow" placement="bottom">
+    <t-popup v-model="drugPickerShow" placement="bottom">
       <t-picker
         title="选择药品"
-        :columns="popupDrugInfo"
-        :defaultValue="defaultDrugValue"
-        @cancel="drugPopupShow = false"
-        @confirm="onConfirm"
-      />
+        :columns="drugPickerData"
+        :defaultValue="drugPickerValue"
+        @cancel="drugPickerShow = false"
+        @confirm="confirmDrugPicker"
+        :renderLabel="drugPickerLabel"
+      /><!-- 
+         -->
     </t-popup>
 
     <t-message
@@ -196,37 +207,55 @@ import { Decimal } from 'decimal.js';
 import { nanoid } from 'nanoid';
 // nanoid(10) 生成 10 位的随机数
 import { drugList } from '@/storage/drugList.js';
+import { deepClone } from '@/utils/utils.js';
+
+// 选择器显示的label
+function drugPickerLabel(args) {
+  return `${args.name} ${args.volume}${args.unitsVol}`;
+}
 
 // 显示选择器
-const drugPopupShow = ref(false);
+const drugPickerShow = ref(false);
 // 选择器数据
-const popupDrugInfo = [generatePopupData(drugList)];
+const drugPickerData = [genPickerData(drugList)];
 
-// 生成选择器数据
-function generatePopupData(data) {
+function genPickerData(data) {
+  const drugData = deepClone(data);
   const arr = [];
-  for (const key in data) {
-    const i = data[key];
-    arr.push({ label: i.name + ' ' + i.volume + 'ml', value: key });
+  for (const key in drugData) {
+    const i = drugData[key];
+    arr.push(i);
   }
   return arr;
 }
 
 // 选择器当前默认选择的药物id
-const defaultDrugValue = reactive([popupDrugInfo[0][0].value]);
+const drugPickerValue = reactive([drugPickerData[0][0].value]);
 
 // 已选中的药物数据
-const changeDrugInfo = reactive(drugList[defaultDrugValue[0]]);
+const currentDrugData = reactive(deepClone(drugList[drugPickerValue[0]]));
 
-// 输入的重量
-const weight = ref('');
+// 剂量类型标签颜色和内容
+const doseTypeData = {
+  std: {
+    label: '单位 g',
+    theme: 'default',
+  },
+  sm: {
+    label: '单位 mg',
+    theme: 'warning',
+  },
+};
+
 // 计算过程字符串
-const calcStr = ref('&nbsp;');
+const calcProcessStr = ref('&nbsp;');
 // 计算结果
-const calcResult = ref('&nbsp;');
+const calcResultStr = ref('&nbsp;');
 
+// 缓存的重量
+const weightData = ref('');
 // 输入的重量
-const weightNumber = computed({
+const weightInput = computed({
   set(val) {
     let valFormat = val.replace(/^0+(?=[1-9]|0\.)/g, '');
     let nub;
@@ -237,43 +266,54 @@ const weightNumber = computed({
     } else {
       nub = valFormat;
     }
-    weight.value = nub;
+    weightData.value = nub;
   },
   get() {
-    return weight.value;
+    return weightData.value;
   },
 });
 
-watch(weightNumber, (val) => {
-  generateCalcResult(val);
+watch(weightInput, (val) => {
+  genCalcResult(val);
 });
 
-// 确认选择的时候
-function onConfirm(val) {
+// 确认选择药品
+function confirmDrugPicker(val) {
   const changeValue = val[0];
-  defaultDrugValue.splice(0, defaultDrugValue.length, changeValue);
-  Object.assign(changeDrugInfo, drugList[changeValue]);
-  drugPopupShow.value = false;
+  console.dir(drugPickerData);
 
-  generateCalcResult(weight.value);
+  console.dir(changeValue);
+  drugPickerValue.splice(0, drugPickerValue.length, changeValue);
+  Object.assign(currentDrugData, drugList[changeValue]);
+
+  console.dir(drugPickerData);
+  console.dir(drugPickerValue);
+  console.dir(currentDrugData);
+  drugPickerShow.value = false;
+
+  genCalcResult(weightData.value);
 }
 
-// 计算结果
-function generateCalcResult(w) {
+// 生成计算结果
+function genCalcResult(w) {
   if (w == null || ['', '0', '0.'].indexOf(w) > -1) {
-    calcStr.value = '&nbsp;';
-    calcResult.value = '&nbsp;';
+    calcProcessStr.value = '&nbsp;';
+    calcResultStr.value = '&nbsp;';
     return;
   }
-  let originVol = new Decimal(changeDrugInfo.volume);
-  let originWgt = new Decimal(changeDrugInfo.weight);
+  let originVol = new Decimal(currentDrugData.volume);
+  let originWgt = new Decimal(currentDrugData.weight);
   let newWgt = new Decimal(w);
   const nub = Decimal.div(Decimal.mul(originVol, newWgt), originWgt).toDP(
     4,
     Decimal.ROUND_DOWN
   );
-  calcResult.value = nub + 'ml';
-  calcStr.value = `${originVol}ml × ${newWgt}g ÷ ${originWgt}g = ${nub} ml`;
+
+  const unV = currentDrugData.unitsVol;
+  const unW = currentDrugData.unitsWt;
+
+  calcResultStr.value = nub + unV;
+  calcProcessStr.value = `${originVol}${unV} × ${newWgt}${unW} ÷ ${originWgt}${unW} = ${nub}${unV}`;
 }
 
 /**
@@ -281,13 +321,16 @@ function generateCalcResult(w) {
  */
 
 // 当前展开了的面板
-const collapseValues = ref([1, 2]);
-const handleChange = (val) => {
+const collapseValues = ref([]);
+// 每次展开收起时更新面板数据
+const changeCollapse = (val) => {
+  console.dir(val);
   collapseValues.value = val;
 };
 
 // form
 // add form 组件
+
 const formTitle = '新增药品信息';
 const form = ref(null);
 const formData = ref({
