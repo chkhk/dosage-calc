@@ -62,7 +62,7 @@ function changeThemeMode() {
 // 侧边栏信息
 const menuInfo = ref([
   {
-    title: '毫升克重转换',
+    title: '将克重转换为毫升',
   },
   {
     title: '根据体重计算药量',
@@ -74,6 +74,7 @@ const menuVisible = ref(false);
 // eslint-disable-next-line no-unused-vars
 const menuClick = (index, info, e) => {
   console.dir(info);
+  menuVisible.value = false;
 };
 </script>
 

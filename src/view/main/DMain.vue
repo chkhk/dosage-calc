@@ -1,183 +1,197 @@
 <template>
   <main>
-    <t-divider />
-
-    <t-cell-group>
-      <t-cell class="drug-title">
-        <template #title>
-          <span>选择要计算的药品 &#9759;</span>
-        </template>
-      </t-cell>
-      <t-cell
-        arrow
-        :title="currentDrugData.name"
-        :hover="true"
-        @click="drugPickerShow = true"
-      >
-        <t-tag
-          :theme="doseTypeData[currentDrugData.dose].theme"
-          variant="outline"
-          shape="round"
-        >
-          <code>
-            {{ doseTypeData[currentDrugData.dose].label }}
-          </code>
-        </t-tag>
-        <t-tag variant="outline" shape="round" style="margin-left: 10px">
-          <code>
-            {{ currentDrugData.volume }} {{ currentDrugData.unitsVol }} |
-            {{ currentDrugData.weight }} {{ currentDrugData.unitsWt }}
-          </code>
-        </t-tag>
-      </t-cell>
-    </t-cell-group>
-
-    <t-divider />
-
-    <t-cell-group>
-      <t-cell class="drug-title">
-        <template #title>
-          <span>输入重量 &#9759;</span>
-        </template>
-      </t-cell>
-      <t-cell>
-        <t-input
-          v-model="weightInput"
-          borderless
-          label="克重"
-          placeholder="在这里输入（0g ~ 100g）"
-          :clearable="true"
-          type="number"
-          min="0"
-          max="100"
-          class="weight-input"
-        >
-          <template #suffix>
-            <code>{{ currentDrugData.unitsWt }}</code>
-          </template>
-        </t-input>
-      </t-cell>
-    </t-cell-group>
-
-    <t-divider />
-
-    <t-cell-group>
-      <t-cell class="drug-title">
-        <template #title>
-          <span>结果</span>
-          <span class="other-tips">（保留4位小数）</span>
-          <span>&#9759;</span>
-        </template>
-      </t-cell>
-      <t-cell>
-        <template #title>
-          <h2 class="calc-result"><code v-html="calcResultStr"></code></h2>
-        </template>
-      </t-cell>
-    </t-cell-group>
-
-    <t-divider />
-
-    <t-cell-group>
-      <t-cell class="drug-title">
-        <template #title>
-          <div class="f-c"><Functions1Icon />&nbsp;计算过程 &#9759;</div>
-        </template>
-      </t-cell>
-      <t-cell>
-        <template #title>
-          <code v-html="calcProcessStr"></code>
-        </template>
-      </t-cell>
-    </t-cell-group>
-
-    <t-divider />
-
-    <t-collapse
-      :value="collapseValues"
-      @change="changeCollapse"
-      style="margin-top: 30px"
+    <t-tabs
+      :value="tabsValue"
+      :list="[
+        { value: 0, label: '计算' },
+        { value: 1, label: '药品库' },
+      ]"
+      @change="tabPanelChange"
     >
-      <t-collapse-panel
-        :value="1"
-        :header-right-content="collapseValues.includes(1) ? '收起' : '展开'"
-      >
-        <template #header>
-          <div>{{ formTitle }}</div>
-        </template>
-        <div>
-          <t-form
-            ref="form"
-            :data="formData"
-            :rules="rules"
-            reset-type="initial"
-            :show-error-message="true"
-            label-align="left"
-            @submit="onSubmit"
+      <t-tab-panel :value="0">
+        <t-cell-group>
+          <t-cell class="drug-title">
+            <template #title>
+              <span>选择要计算的药品 &#9759;</span>
+            </template>
+          </t-cell>
+          <t-cell
+            arrow
+            :title="currentDrugData.name"
+            :hover="true"
+            @click="drugPickerShow = true"
           >
-            <t-form-item label="名称" name="name" class="d-form-item">
-              <t-input
-                v-model="formData.name"
-                borderless
-                placeholder="10个字以内"
-                :clearable="true"
-              ></t-input>
-            </t-form-item>
-            <t-form-item label="容积" name="volume" class="d-form-item">
-              <t-input
-                v-model="formData.volume"
-                borderless
-                placeholder="0 ~ 1000"
-                :clearable="true"
-                type="number"
-                min="0"
-                max="1000"
-              >
-                <template #suffix>
-                  <code>ml</code>
-                </template>
-              </t-input>
-            </t-form-item>
-            <t-form-item label="重量" name="weight" class="d-form-item">
-              <t-input
-                v-model="formData.weight"
-                borderless
-                placeholder="0 ~ 100"
-                :clearable="true"
-                type="number"
-                min="0"
-                max="100"
-              >
-                <template #suffix>
-                  <code>g</code>
-                </template>
-              </t-input>
-            </t-form-item>
+            <t-tag
+              :theme="doseTypeData[currentDrugData.dose].theme"
+              variant="outline"
+              shape="round"
+            >
+              <code>
+                {{ doseTypeData[currentDrugData.dose].label }}
+              </code>
+            </t-tag>
+            <t-tag variant="outline" shape="round" style="margin-left: 10px">
+              <code>
+                {{ currentDrugData.volume }} {{ currentDrugData.unitsVol }} |
+                {{ currentDrugData.weight }} {{ currentDrugData.unitsWt }}
+              </code>
+            </t-tag>
+          </t-cell>
+        </t-cell-group>
 
-            <div class="button-group">
-              <t-button theme="light" type="submit"> 提交 </t-button>
-              <t-button theme="default" type="reset"> 重置 </t-button>
-            </div>
-          </t-form>
-        </div>
-      </t-collapse-panel>
-      <t-collapse-panel
-        :value="2"
-        :header-right-content="collapseValues.includes(2) ? '收起' : '展开'"
-      >
-        <template #header>
-          <div>向左滑动要编辑的药品</div>
-        </template>
+        <t-divider />
+
+        <t-cell-group>
+          <t-cell class="drug-title">
+            <template #title>
+              <span>输入重量 &#9759;</span>
+            </template>
+          </t-cell>
+          <t-cell>
+            <t-input
+              v-model="weightInput"
+              borderless
+              label="克重"
+              placeholder="在这里输入（0g ~ 100g）"
+              :clearable="true"
+              type="number"
+              min="0"
+              max="100"
+              class="weight-input"
+            >
+              <template #suffix>
+                <code>{{ currentDrugData.unitsWt }}</code>
+              </template>
+            </t-input>
+          </t-cell>
+        </t-cell-group>
+
+        <t-divider />
+
+        <t-cell-group>
+          <t-cell class="drug-title">
+            <template #title>
+              <span>结果</span>
+              <span class="other-tips">（保留4位小数）</span>
+              <span>&#9759;</span>
+            </template>
+          </t-cell>
+          <t-cell>
+            <template #title>
+              <h2 class="calc-result"><code v-html="calcResultStr"></code></h2>
+            </template>
+          </t-cell>
+        </t-cell-group>
+
+        <t-divider />
+
+        <t-cell-group>
+          <t-cell class="drug-title">
+            <template #title>
+              <div class="f-c"><Functions1Icon />&nbsp;计算过程 &#9759;</div>
+            </template>
+          </t-cell>
+          <t-cell>
+            <template #title>
+              <code v-html="calcProcessStr"></code>
+            </template>
+          </t-cell>
+        </t-cell-group>
+      </t-tab-panel>
+      <t-tab-panel :value="1">
         <div>
-          此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容可自定义内容
-        </div>
-      </t-collapse-panel>
-    </t-collapse>
+          <t-collapse
+            :value="collapseValues"
+            @change="changeCollapse"
+            style="margin-top: 30px"
+          >
+            <t-collapse-panel
+              :value="1"
+              :header-right-content="
+                collapseValues.includes(1) ? '收起' : '展开'
+              "
+            >
+              <template #header>
+                <div>{{ formTitle }}</div>
+              </template>
+              <div>
+                <t-form
+                  ref="form"
+                  :data="formData"
+                  :rules="rules"
+                  reset-type="initial"
+                  :show-error-message="true"
+                  label-align="left"
+                  @submit="onSubmit"
+                >
+                  <t-form-item label="名称" name="name" class="d-form-item">
+                    <t-input
+                      v-model="formData.name"
+                      borderless
+                      placeholder="10个字以内"
+                      :clearable="true"
+                    ></t-input>
+                  </t-form-item>
+                  <t-form-item label="容积" name="volume" class="d-form-item">
+                    <t-input
+                      v-model="formData.volume"
+                      borderless
+                      placeholder="0 ~ 1000"
+                      :clearable="true"
+                      type="number"
+                      min="0"
+                      max="1000"
+                    >
+                      <template #suffix>
+                        <code>ml</code>
+                      </template>
+                    </t-input>
+                  </t-form-item>
+                  <t-form-item label="重量" name="weight" class="d-form-item">
+                    <t-input
+                      v-model="formData.weight"
+                      borderless
+                      placeholder="0 ~ 100"
+                      :clearable="true"
+                      type="number"
+                      min="0"
+                      max="100"
+                    >
+                      <template #suffix>
+                        <code>g</code>
+                      </template>
+                    </t-input>
+                  </t-form-item>
 
-    <t-divider
-      content="自定义的数据清除缓存后会丢失"
-      style="margin-top: 30px"
-    />
+                  <div class="button-group">
+                    <t-button theme="light" type="submit"> 提交 </t-button>
+                    <t-button theme="default" type="reset"> 重置 </t-button>
+                  </div>
+                </t-form>
+              </div>
+            </t-collapse-panel>
+            <t-collapse-panel
+              :value="2"
+              :header-right-content="
+                collapseValues.includes(2) ? '收起' : '展开'
+              "
+            >
+              <template #header>
+                <div>向左滑动要编辑的药品</div>
+              </template>
+              <div>
+                此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容此处可自定义内容可自定义内容
+              </div>
+            </t-collapse-panel>
+          </t-collapse>
+
+          <t-divider
+            content="自定义的数据清除缓存后会丢失"
+            style="margin-top: 30px"
+          />
+        </div>
+      </t-tab-panel>
+    </t-tabs>
 
     <t-popup v-model="drugPickerShow" placement="bottom">
       <t-picker
@@ -214,20 +228,15 @@ function drugPickerLabel(args) {
   return `${args.name} ${args.volume}${args.unitsVol}`;
 }
 
+const tabsValue = ref(0);
+const tabPanelChange = (value) => {
+  tabsValue.value = value;
+};
+
 // 显示选择器
 const drugPickerShow = ref(false);
 // 选择器数据
-const drugPickerData = [genPickerData(drugList)];
-
-function genPickerData(data) {
-  const drugData = deepClone(data);
-  const arr = [];
-  for (const key in drugData) {
-    const i = drugData[key];
-    arr.push(i);
-  }
-  return arr;
-}
+const drugPickerData = [[...drugList]];
 
 // 选择器当前默认选择的药物id
 const drugPickerValue = reactive([drugPickerData[0][0].value]);
@@ -280,15 +289,9 @@ watch(weightInput, (val) => {
 // 确认选择药品
 function confirmDrugPicker(val) {
   const changeValue = val[0];
-  console.dir(drugPickerData);
-
-  console.dir(changeValue);
   drugPickerValue.splice(0, drugPickerValue.length, changeValue);
   Object.assign(currentDrugData, drugList[changeValue]);
 
-  console.dir(drugPickerData);
-  console.dir(drugPickerValue);
-  console.dir(currentDrugData);
   drugPickerShow.value = false;
 
   genCalcResult(weightData.value);
@@ -324,7 +327,6 @@ function genCalcResult(w) {
 const collapseValues = ref([]);
 // 每次展开收起时更新面板数据
 const changeCollapse = (val) => {
-  console.dir(val);
   collapseValues.value = val;
 };
 
@@ -365,7 +367,6 @@ const rules = ref({
 const addMsgVisible = ref(false);
 function onSubmit(args) {
   if (args.validateResult === true) {
-    console.dir(formData.value);
     addMsgVisible.value = true;
     setTimeout(() => {
       addMsgVisible.value = false;
@@ -373,7 +374,6 @@ function onSubmit(args) {
     form.value.reset();
     return;
   }
-  console.dir(args.validateResult);
 }
 </script>
 

@@ -23,6 +23,12 @@ export const drugList = {
     unitsVol: 'ml',
     unitsWt: 'mg',
   },
+  *[Symbol.iterator]() {
+    const keys = Object.keys(this);
+    for (let i = 0; i < keys.length; i++) {
+      yield this[keys[i]];
+    }
+  },
 };
 
 export const drugCalc = {
