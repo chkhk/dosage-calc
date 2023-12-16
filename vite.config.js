@@ -14,6 +14,7 @@ export default defineConfig({
   server: {
     hmr: true,
     host: true,
+    port: 5173,
   },
   resolve: {
     alias: {

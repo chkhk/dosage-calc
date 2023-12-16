@@ -7,29 +7,74 @@
     </t-cell>
     <t-cell
       arrow
-      :title="changeDrugInfo.name"
+      :title="props.modelValue.name"
       :hover="true"
-      @click="drugPopupShow = true"
+      @click="drugPickerShow = true"
     >
-      <t-tag variant="outline" shape="round">
-        <code
-          >{{ changeDrugInfo.volume }} ml | {{ changeDrugInfo.weight }} g</code
-        >
+      <t-tag
+        :theme="doseTypeData[props.modelValue.dose].theme"
+        variant="outline"
+        shape="round"
+      >
+        <code>
+          {{ doseTypeData[props.modelValue.dose].label }}
+        </code>
+      </t-tag>
+      <t-tag variant="outline" shape="round" style="margin-left: 10px">
+        <code>
+          {{ props.modelValue.volume }} {{ props.modelValue.unitsVol }} |
+          {{ props.modelValue.weight }} {{ props.modelValue.unitsWt }}
+        </code>
       </t-tag>
     </t-cell>
   </t-cell-group>
 
-  <t-popup v-model="drugPopupShow" placement="bottom">
+  <t-popup v-model="drugPickerShow" placement="bottom">
     <t-picker
       title="选择药品"
-      :columns="popupDrugInfo"
-      :defaultValue="defaultDrugValue"
-      @cancel="drugPopupShow = false"
+      :columns="drugPickerColumns"
+      :value="props.modelValue.value"
+      @cancel="drugPickerShow = false"
       @confirm="onConfirm"
     />
   </t-popup>
 </template>
 
-<script setup></script>
+<script setup>
+import { drugList, doseTypeData } from '@/storage/drugList.js';
+import { deepClone } from '@/utils/utils';
 
-<style lang="less" scoped></style>
+const props = defineProps({
+  modelValue: Object,
+});
+
+const emit = defineEmits(['update:modelValue']);
+
+// 显示选择器
+const drugPickerShow = ref(false);
+
+// 设置显示的字段
+function drugPickerColumns() {
+  return [
+    deepClone(drugList).map((item) => {
+      item.value = item.id;
+      item.label =
+        item.name +
+        ' ' +
+        item.volume +
+        item.unitsVol +
+        ' ' +
+        item.weight +
+        item.unitsWt;
+      return item;
+    }),
+  ];
+}
+
+function onConfirm(val, content) {
+  console.log(val);
+  Object.assign(props.modelValue, drugList[content.index[0]]);
+  // emit('update:modelValue', drugList[content.index[0]]);
+  drugPickerShow.value = false;
+}
+</script>

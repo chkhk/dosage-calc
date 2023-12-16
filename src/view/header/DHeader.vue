@@ -2,7 +2,7 @@
   <t-navbar :fixed="false">
     <template #left>
       <Calculation1Icon size="large" />
-      <h2>&nbsp;剂量快速计算</h2>
+      <h2>&nbsp;药品剂量快速计算</h2>
     </template>
     <template #right>
       <SunnyIcon

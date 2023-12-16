@@ -4,9 +4,9 @@
  * volume: ml; weight: g
  * dose: std: 标准剂量/g  sm: 小剂量/mg
  */
-export const drugList = {
-  drug0: {
-    value: 'drug0',
+export const drugList = [
+  {
+    id: 'drug0',
     name: '小儿氨基酸',
     volume: 20,
     weight: 1.2,
@@ -14,8 +14,8 @@ export const drugList = {
     unitsVol: 'ml',
     unitsWt: 'g',
   },
-  drug1: {
-    value: 'drug1',
+  {
+    id: 'drug1',
     name: '安定',
     volume: 2,
     weight: 10,
@@ -23,23 +23,33 @@ export const drugList = {
     unitsVol: 'ml',
     unitsWt: 'mg',
   },
-  *[Symbol.iterator]() {
-    const keys = Object.keys(this);
-    for (let i = 0; i < keys.length; i++) {
-      yield this[keys[i]];
-    }
-  },
-};
+];
 
-export const drugCalc = {
-  calc0: {
-    value: 'calc0',
+// 根据病人体重计算药量
+export const drugCalc = [
+  {
+    id: 'drug1',
     name: '安定',
-    bodyWt: 1,
-    minWt: 0.3,
-    maxWt: 0.5,
-    dose: '小剂量',
-    unitsBdWt: 'kg',
+    volume: 2,
+    weight: 10,
+    dose: 'sm',
+    unitsVol: 'ml',
     unitsWt: 'mg',
+    rangeMin: 0.3,
+    rangeMax: 0.5,
+    drugWtUnits: 'mg',
+    bodyWtUnits: 'kg',
+  },
+];
+
+// 剂量类型标签颜色和内容
+export const doseTypeData = {
+  std: {
+    label: '单位 g',
+    theme: 'default',
+  },
+  sm: {
+    label: '单位 mg',
+    theme: 'warning',
   },
 };
