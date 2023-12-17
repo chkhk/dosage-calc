@@ -42,7 +42,6 @@ const props = defineProps({
 watch(
   props,
   () => {
-    console.log(props.weight, props.drugData);
     genCalcResult(props.weight, props.drugData);
   },
   { deep: true }
@@ -85,7 +84,7 @@ function genCalcResult(w, drugInfo) {
 .other-tips {
   font-size: smaller;
   font-style: italic;
-  color: gray;
+  color: var(--td-gray-color-8, gray);
 }
 
 .calc-result {

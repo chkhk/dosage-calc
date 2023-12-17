@@ -33,7 +33,7 @@
     <t-picker
       title="选择药品"
       :columns="drugPickerColumns"
-      :value="props.modelValue.value"
+      :value="changeValue"
       @cancel="drugPickerShow = false"
       @confirm="onConfirm"
     />
@@ -46,35 +46,27 @@ import { deepClone } from '@/utils/utils';
 
 const props = defineProps({
   modelValue: Object,
+  allDrugList: Array,
 });
 
 const emit = defineEmits(['update:modelValue']);
+
+const changeValue = computed(() => {
+  const val = [props.modelValue.value];
+  return val;
+});
 
 // 显示选择器
 const drugPickerShow = ref(false);
 
 // 设置显示的字段
 function drugPickerColumns() {
-  return [
-    deepClone(drugList).map((item) => {
-      item.value = item.id;
-      item.label =
-        item.name +
-        ' ' +
-        item.volume +
-        item.unitsVol +
-        ' ' +
-        item.weight +
-        item.unitsWt;
-      return item;
-    }),
-  ];
+  const arr = [props.allDrugList];
+  return arr;
 }
 
 function onConfirm(val, content) {
-  console.log(val);
-  Object.assign(props.modelValue, drugList[content.index[0]]);
-  // emit('update:modelValue', drugList[content.index[0]]);
+  Object.assign(props.modelValue, props.allDrugList[content.index[0]]);
   drugPickerShow.value = false;
 }
 </script>

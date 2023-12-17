@@ -10,11 +10,11 @@
         v-model="weightInput"
         borderless
         label="克重"
-        placeholder="在这里输入（0g ~ 100g）"
+        placeholder="在这里输入（0 ~ 1000）"
         :clearable="true"
         type="number"
         min="0"
-        max="100"
+        max="1000"
         class="weight-input"
       >
         <template #suffix>
@@ -26,6 +26,11 @@
 </template>
 
 <script setup>
+// 暴露出去的方法
+defineExpose({
+  clearWeight,
+});
+
 const props = defineProps({
   currentDrugUnits: {
     type: String,
@@ -45,8 +50,8 @@ const weightInput = computed({
     let nub;
     if (valFormat < 0) {
       nub = 0;
-    } else if (valFormat > 100) {
-      nub = 100;
+    } else if (valFormat > 1000) {
+      nub = 1000;
     } else {
       nub = valFormat;
     }
@@ -57,6 +62,11 @@ const weightInput = computed({
     return weight.value;
   },
 });
+
+// 清空输入框
+function clearWeight() {
+  weightInput.value = '';
+}
 </script>
 
 <style lang="less" scoped>

@@ -65,7 +65,7 @@ const menuInfo = ref([
     title: '将克重转换为毫升',
   },
   {
-    title: '根据体重计算药量',
+    title: '根据体重直接计算药量（未完成）',
   },
 ]);
 // 侧边栏状态
@@ -73,7 +73,6 @@ const menuVisible = ref(false);
 // 侧边栏事件
 // eslint-disable-next-line no-unused-vars
 const menuClick = (index, info, e) => {
-  console.dir(info);
   menuVisible.value = false;
 };
 </script>

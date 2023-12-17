@@ -8,7 +8,7 @@
       <div class="btn btn--cancel" aria-role="button" @click="cancelEdit">
         取消
       </div>
-      <div class="title">标题文字</div>
+      <div class="title">{{ formTitle }}</div>
       <div class="btn btn--confirm" aria-role="button" @click="saveEdit">
         保存
       </div>
@@ -50,14 +50,14 @@
           <t-input
             v-model="formData.weight"
             borderless
-            placeholder="0 ~ 100"
+            placeholder="0 ~ 1000"
             :clearable="true"
             type="number"
             min="0"
-            max="100"
+            max="1000"
           >
             <template #suffix>
-              <code>g</code>
+              <code>{{ unitsWtText }}</code>
             </template>
           </t-input>
         </t-form-item>
@@ -66,6 +66,7 @@
             v-model="formData.unitsWt"
             class="radio-box"
             borderless
+            @change="unitsWtChange"
           >
             <t-radio :block="false" name="unitsWt" value="g">
               <template #label>克<code>/g</code></template>
@@ -92,11 +93,10 @@ import { nanoid } from 'nanoid';
 // nanoid(10) 生成 10 位的随机数
 
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-  },
+  modelValue: Boolean,
+  formTitle: String,
 });
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'handleTip']);
 
 // 是否显示编辑弹框
 const showEditPop = ref(false);
@@ -119,6 +119,7 @@ const msgVisible = ref(false);
 
 // 保存
 function saveEdit() {
+  emit('handleTip', '功能正在开发中，敬请期待！');
   emit('update:modelValue', false);
 }
 
@@ -130,7 +131,11 @@ function cancelEdit() {
 // form
 // add form 组件
 
-const formTitle = '新增药品信息';
+const unitsWtText = ref('g');
+function unitsWtChange(val) {
+  unitsWtText.value = val;
+}
+
 const form = ref(null);
 const formData = ref({
   name: '',
@@ -150,18 +155,18 @@ const rules = ref({
   volume: [
     {
       validator: (val) => val > 0 && val < 1000,
-      message: '只能大于0ml，小于1000ml',
+      message: '超出范围：0 ~ 1000',
     },
   ],
   weight: [
     {
-      validator: (val) => val > 0 && val < 100,
-      message: '必须大于0g，小于100g',
+      validator: (val) => val > 0 && val < 1000,
+      message: '超出范围：0 ~ 1000',
     },
   ],
 });
 
-//
+// 新增成功提示
 const addMsgVisible = ref(false);
 function onSubmit(args) {
   if (args.validateResult === true) {
@@ -199,7 +204,7 @@ function onSubmit(args) {
   }
 
   .btn--confirm {
-    color: #0052d9;
+    color: var(--td-brand-color-7, #0052d9);
   }
 }
 
