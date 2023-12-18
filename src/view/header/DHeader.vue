@@ -48,6 +48,23 @@
     @confirm="onConfirmDel"
   >
   </t-dialog>
+
+  <!-- 复制 -->
+  <t-dialog
+    v-model:visible="copyShow"
+    :closeOnOverlayClick="true"
+    confirm-btn="关闭"
+    @confirm="onConfirmCopy"
+  >
+    <h3 style="margin-bottom: 10px">{{ copyTipText }}</h3>
+    <t-textarea
+      class="copyTextarea"
+      :value="copyText"
+      readonly
+      autosize
+      bordered
+    />
+  </t-dialog>
 </template>
 
 <script setup>
@@ -127,11 +144,14 @@ function onConfirmDel() {
  */
 function copyDrugStr() {
   let str = getDrugLStorageStr();
-  if (str == null) return;
+  if (str == null) {
+    Toast('没有自定义药品');
+    return;
+  }
   str = str.replace(/\[|\]/g, '');
   const theClipboard = navigator.clipboard;
   if (!theClipboard) {
-    Toast('浏览器不支持一键复制');
+    manualCopy(str, '当前浏览器不支持一键复制，长按下方文本，全选后手动复制');
     return;
   }
   theClipboard
@@ -140,13 +160,29 @@ function copyDrugStr() {
       Toast('已复制到剪贴板');
     })
     .catch(() => {
-      Toast('复制失败');
+      manualCopy(str, '复制失败，长按下方文本，全选后手动复制');
     });
+}
+
+// 手动复制
+const copyShow = ref(false);
+const copyTipText = ref('');
+const copyText = ref('');
+function manualCopy(str, tip) {
+  copyTipText.value = tip;
+  copyText.value = str;
+  copyShow.value = true;
+}
+function onConfirmCopy() {
+  copyShow.value = false;
 }
 </script>
 
 <style lang="less" scoped>
 .f-c {
   justify-content: space-between;
+}
+.copyTextarea {
+  max-height: 300px;
 }
 </style>

@@ -179,8 +179,6 @@ const rules = ref({
 
 const refetchAllDrugList = inject('refetchAllDrugList');
 
-const nubReg = /^0+(?=[1-9]|0\.)|0+$/g;
-
 // 提交表单
 function onEditFormSubmit(args) {
   if (args.validateResult === true) {
@@ -190,8 +188,8 @@ function onEditFormSubmit(args) {
     const newData = {
       id: nanoid(10),
       name: formDataObj.name,
-      volume: formDataObj.volume.replace(nubReg, ''),
-      weight: formDataObj.weight.replace(nubReg, ''),
+      volume: +formDataObj.volume,
+      weight: +formDataObj.weight,
       dose: formDataObj.unitsWt === 'g' ? 'std' : 'sm',
       unitsVol: 'ml',
       unitsWt: formDataObj.unitsWt,
