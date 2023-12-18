@@ -13,4 +13,9 @@ const clearAll = ref(true);
 function clear() {
   clearAll.value = !clearAll.value;
 }
+
+onBeforeMount(() => {
+  const ld1H = document.getElementById('ld1H');
+  if (ld1H) ld1H.remove();
+});
 </script>

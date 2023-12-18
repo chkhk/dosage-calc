@@ -4,6 +4,8 @@ import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import { TDesignResolver } from 'unplugin-vue-components/resolvers';
+import { createHtmlPlugin } from 'vite-plugin-html';
+import { compression } from 'vite-plugin-compression2';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -31,6 +33,11 @@ export default defineConfig({
   plugins: [
     // vite 的 vue 插件
     vue(),
+    // 压缩 html
+    createHtmlPlugin({
+      minify: true,
+    }),
+    compression(),
     // 自动引入插件
     AutoImport({
       // 自动引入 vue 的api

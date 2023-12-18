@@ -5,8 +5,10 @@
     <link rel="icon" type="image/png" href="https://chkhk.github.io/config/icons/default.png" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=10,user-scalable=no"/>
     <title>剂量计算</title>
+    <style>#ld1H{position:fixed;top:0;left:0;width:100vw;height:90vh;z-index:999;display:flex;justify-content:center;align-items:center}@keyframes ld2Ha{0%{top:94px;left:94px;width:0;height:0;opacity:1}100%{top:-3px;left:-3px;width:194px;height:194px;opacity:0}}#ld1H>div{width:200px;height:200px;display:inline-block;position:absolute}#ld2H div{position:absolute;border-width:6px;border-style:solid;opacity:1;border-radius:50%;animation:ld2Ha 2s cubic-bezier(0,0.2,0.8,1) infinite}#ld2H div:nth-child(1){border-color:#2667d4;animation-delay:0s}#ld2H div:nth-child(2){border-color:#054bbe;animation-delay:-0.5s}#ld2H{width:100%;height:100%;position:relative;transform:translateZ(0) scale(1);backface-visibility:hidden;transform-origin:0 0}#ld2H div{box-sizing:content-box}</style>
   </head>
   <body>
+    <div id="ld1H"><div><div id="ld2H"><div></div><div></div></div></div></div>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
