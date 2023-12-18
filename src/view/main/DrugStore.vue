@@ -1,15 +1,26 @@
 <template>
-  <!-- 添加按钮 -->
-  <t-fab text="添加药品" @click="addDrug">
-    <template #icon>
-      <AddIcon />
-    </template>
-  </t-fab>
-  <t-fab :style="'left: 16px; bottom: 32px'" @click="tipShow = true">
-    <template #icon>
-      <ErrorIcon />
-    </template>
-  </t-fab>
+  <teleport to="body">
+    <!-- 提示和添加按钮 -->
+    <t-fab
+      :style="'right: 16px;bottom: 32px'"
+      text="新增药品"
+      @click="addDrug"
+      v-show="fabBtnShow"
+    >
+      <template #icon>
+        <AddIcon />
+      </template>
+    </t-fab>
+    <t-fab
+      :style="'left: 16px;bottom: 32px'"
+      @click="tipShow = true"
+      v-show="fabBtnShow"
+    >
+      <template #icon>
+        <ErrorIcon />
+      </template>
+    </t-fab>
+  </teleport>
 
   <!-- 提醒 -->
   <t-dialog
@@ -33,6 +44,35 @@
     @cancel="onCancelDel"
   >
   </t-dialog>
+
+  <t-divider content="默认药品(不可编辑)" align="left" />
+
+  <div>
+    <t-cell-group>
+      <t-cell
+        hover
+        v-for="item in props.defaultDrugList"
+        :key="item.id"
+        @click="changeDrugItem(item)"
+      >
+        <template #title>
+          <div>
+            <span style="margin-right: 15px">{{ item.name }}</span>
+            <t-tag
+              :theme="doseTypeData[item.dose].theme"
+              variant="outline"
+              shape="mark"
+            >
+              <code>
+                {{ item.volume }} {{ item.unitsVol }} | {{ item.weight }}
+                {{ item.unitsWt }}
+              </code>
+            </t-tag>
+          </div>
+        </template>
+      </t-cell>
+    </t-cell-group>
+  </div>
 
   <t-divider align="left">
     <template #content>
@@ -70,34 +110,7 @@
     </t-swipe-cell>
   </div>
 
-  <t-divider content="默认药品(不可编辑)" align="left" />
-
-  <div>
-    <t-cell-group>
-      <t-cell
-        hover
-        v-for="item in props.defaultDrugList"
-        :key="item.id"
-        @click="changeDrugItem(item)"
-      >
-        <template #title>
-          <div>
-            <span style="margin-right: 15px">{{ item.name }}</span>
-            <t-tag
-              :theme="doseTypeData[item.dose].theme"
-              variant="outline"
-              shape="mark"
-            >
-              <code>
-                {{ item.volume }} {{ item.unitsVol }} | {{ item.weight }}
-                {{ item.unitsWt }}
-              </code>
-            </t-tag>
-          </div>
-        </template>
-      </t-cell>
-    </t-cell-group>
-  </div>
+  <t-divider content="已经到底了" class="bottom-tips" />
 
   <EditDrug
     v-model="formShow"
@@ -119,9 +132,22 @@ import {
 import { deepClone, saveDrugLStorage } from '@/utils/utils';
 
 const props = defineProps({
+  tabsValue: Number,
   defaultDrugList: Array,
   customDrugList: Array,
 });
+
+// 提示和新增按钮是否隐藏
+const fabBtnShow = ref(true);
+watch(
+  () => props.tabsValue,
+  (val) => {
+    fabBtnShow.value = val === 1;
+  },
+  {
+    immediate: true,
+  }
+);
 
 const emit = defineEmits(['drugStoreChange', 'refetchAllDrugList']);
 
@@ -187,6 +213,11 @@ const editFormDataIndex = ref(null);
 
 // 新增药品
 function addDrug() {
+  if (props.customDrugList.length > 29) {
+    Toast('最多添加30个药品');
+    return;
+  }
+
   formTitle.value = '新增药品';
   editFormData.value = null;
   editFormDataIndex.value = null;
@@ -236,5 +267,8 @@ function deleteDrug(index) {
   &.delete-btn {
     background-color: var(--td-error-color-4, #e34d59);
   }
+}
+.bottom-tips {
+  margin: 20px 0 100px;
 }
 </style>

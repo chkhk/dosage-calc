@@ -28,8 +28,8 @@
         <template #label>
           <div>药品库</div>
         </template>
-
         <DrugStore
+          :tabsValue="tabsValue"
           :defaultDrugList="defaultDrugList"
           :customDrugList="customDrugList"
           @refetchAllDrugList="refetchAllDrugList"
@@ -50,7 +50,17 @@ import { drugList } from '@/storage/drugList.js';
 import { deepClone, setDrugList, getDrugLStorage } from '@/utils/utils';
 
 // 初始化一些自定义药品数据，方便调试
-// setDrugList();
+// setDrugList(3);
+
+const props = defineProps({
+  clearAll: Boolean,
+});
+watch(
+  () => props.clearAll,
+  () => {
+    refetchAllDrugList();
+  }
+);
 
 // 选择的选项卡（计算，药品库）
 const tabsValue = ref(0);

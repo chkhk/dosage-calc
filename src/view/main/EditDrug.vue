@@ -204,7 +204,7 @@ function onEditFormSubmit(args) {
       drugLStorage.splice(props.editFormDataIndex, 1, newData);
       editFormTipText = '修改成功';
     }
-    console.log('编辑的药品：', newData);
+    console.log('操作的药品：', newData);
     saveDrugLStorage(drugLStorage);
     refetchAllDrugList();
     showEditPop.value = false;

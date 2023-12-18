@@ -14,28 +14,19 @@ export function deepClone(obj) {
 /**
  * 设置默认的自定义药品列表
  */
-export function setDrugList() {
-  const drugList = [
-    {
+export function setDrugList(nub = 10) {
+  const newList = new Array(nub).fill(0).map((val, index) => {
+    return {
       id: nanoid(10),
-      name: '测试药品1',
-      volume: 30,
-      weight: 2,
+      name: `测试药品${index + 1}`,
+      volume: index * 10,
+      weight: index * 10,
       dose: 'std',
       unitsVol: 'ml',
       unitsWt: 'g',
-    },
-    {
-      id: nanoid(10),
-      name: '测试药品2',
-      volume: 4,
-      weight: 20,
-      dose: 'sm',
-      unitsVol: 'ml',
-      unitsWt: 'mg',
-    },
-  ];
-  saveDrugLStorage(drugList);
+    };
+  });
+  saveDrugLStorage(newList);
 }
 
 /**
@@ -63,4 +54,17 @@ export function getDrugLStorage() {
   } else {
     return JSON.parse(drugListStr);
   }
+}
+
+/**
+ * 获取自定义药品数据字符串
+ * @returns {String} drugListStr
+ */
+export function getDrugLStorageStr() {
+  const str = window.localStorage.getItem('DrugList');
+  return str === '[]' ? null : str;
+}
+
+export function clearDrugLStorage() {
+  window.localStorage.removeItem('DrugList');
 }
