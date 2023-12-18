@@ -22,11 +22,13 @@
         :show-error-message="showErrorMessage"
         label-align="left"
         @submit="onEditFormSubmit"
+        :novalidate="true"
       >
         <t-form-item label="名称" name="name" class="d-form-item">
           <t-input
             v-model="formData.name"
             borderless
+            :maxlength="10"
             placeholder="10个字以内"
             :clearable="true"
           ></t-input>
@@ -38,8 +40,6 @@
             placeholder="0 ~ 1000"
             :clearable="true"
             type="number"
-            min="0"
-            max="1000"
           >
             <template #suffix>
               <code>ml</code>
@@ -53,8 +53,6 @@
             placeholder="0 ~ 1000"
             :clearable="true"
             type="number"
-            min="0"
-            max="1000"
           >
             <template #suffix>
               <code>{{ unitsWtText }}</code>
@@ -162,24 +160,26 @@ const rules = ref({
       validator: (val) => {
         return val.length < 11 && val.length > 0;
       },
-      message: '最多输入10个文字',
+      message: '请输入药品名称',
     },
   ],
   volume: [
     {
       validator: (val) => val > 0 && val < 1000,
-      message: '超出范围：0 ~ 1000',
+      message: '范围：大于0, 小于等于1000',
     },
   ],
   weight: [
     {
       validator: (val) => val > 0 && val < 1000,
-      message: '超出范围：0 ~ 1000',
+      message: '范围：大于0, 小于等于1000',
     },
   ],
 });
 
 const refetchAllDrugList = inject('refetchAllDrugList');
+
+const nubReg = /^0+(?=[1-9]|0\.)|0+$/g;
 
 // 提交表单
 function onEditFormSubmit(args) {
@@ -190,8 +190,8 @@ function onEditFormSubmit(args) {
     const newData = {
       id: nanoid(10),
       name: formDataObj.name,
-      volume: formDataObj.volume,
-      weight: formDataObj.weight,
+      volume: formDataObj.volume.replace(nubReg, ''),
+      weight: formDataObj.weight.replace(nubReg, ''),
       dose: formDataObj.unitsWt === 'g' ? 'std' : 'sm',
       unitsVol: 'ml',
       unitsWt: formDataObj.unitsWt,
@@ -215,7 +215,7 @@ function onEditFormSubmit(args) {
     });
     editFormRef.value.reset();
   } else {
-    Toast('药品信息格式错误');
+    Toast('检查输入的内容');
   }
 }
 </script>

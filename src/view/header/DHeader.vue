@@ -62,16 +62,19 @@ import { getDrugLStorageStr, clearDrugLStorage } from '@/utils/utils';
 
 const emit = defineEmits(['clear']);
 
-const themeMode = ref('light');
+const themeLS = localStorage.getItem('DrugThemeMode');
+const themeMode = ref(themeLS || 'light');
 // 设置主题模式
-document.documentElement.setAttribute('theme-mode', 'light');
+document.documentElement.setAttribute('theme-mode', themeMode.value);
 function changeThemeMode() {
   if (themeMode.value === 'light') {
     themeMode.value = 'dark';
     document.documentElement.setAttribute('theme-mode', 'dark');
+    localStorage.setItem('DrugThemeMode', 'dark');
   } else {
     themeMode.value = 'light';
     document.documentElement.setAttribute('theme-mode', 'light');
+    localStorage.setItem('DrugThemeMode', 'light');
   }
 }
 

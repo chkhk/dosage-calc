@@ -13,8 +13,6 @@
         placeholder="在这里输入（0 ~ 1000）"
         :clearable="true"
         type="number"
-        min="0"
-        max="1000"
         class="weight-input"
       >
         <template #suffix>
