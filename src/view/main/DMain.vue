@@ -53,7 +53,7 @@ import { deepClone, setDrugList, getDrugLStorage } from '@/utils/utils';
 // setDrugList();
 
 // 选择的选项卡（计算，药品库）
-const tabsValue = ref(1);
+const tabsValue = ref(0);
 // 选择选项卡时
 function tabsChange(tabVal) {
   tabsValue.value = tabVal;
