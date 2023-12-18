@@ -153,6 +153,7 @@ main {
   }
   :deep(.drug-title) {
     font-weight: bold;
+    user-select: none;
   }
 }
 </style>
