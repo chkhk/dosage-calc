@@ -6,7 +6,11 @@
           <div>计算</div>
         </template>
 
-        <SelectDrug v-model="currentDrugData" :allDrugList="allDrugList" />
+        <SelectDrug
+          ref="SelectDrugRef"
+          v-model="currentDrugData"
+          :allDrugList="allDrugList"
+        />
 
         <t-divider />
 
@@ -42,9 +46,11 @@ import InputWeight from './InputWeight.vue';
 import DrugStore from './DrugStore.vue';
 import CalcResult from './CalcResult.vue';
 import { drugList } from '@/storage/drugList.js';
+// eslint-disable-next-line no-unused-vars
 import { deepClone, setDrugList, getDrugLStorage } from '@/utils/utils';
 
-setDrugList();
+// 初始化一些自定义药品数据，方便调试
+// setDrugList();
 
 // 选择的选项卡（计算，药品库）
 const tabsValue = ref(1);
@@ -52,7 +58,9 @@ const tabsValue = ref(1);
 function tabsChange(tabVal) {
   tabsValue.value = tabVal;
 }
-/* todo： 选择框不能同步是因为元数据不一致 */
+
+// 选择组件
+const SelectDrugRef = ref(null);
 
 // 初始默认的药品数据
 const defaultDrugList = getDefaultDrugList();
@@ -68,16 +76,22 @@ function getCustomDrugList() {
 
 // 所有药品数据
 const allDrugList = reactive([...defaultDrugList, ...customDrugList]);
-console.log('allDrugList', allDrugList);
 
 // 编辑数据后刷新所有药品数据
 function refetchAllDrugList() {
   const cList = getCustomDrugList();
   customDrugList.splice(0, customDrugList.length, ...cList);
-  allDrugList.splice(0, allDrugList.length, ...defaultDrugList, ...cList);
+  if (cList.length > 0) {
+    allDrugList.splice(0, allDrugList.length, ...defaultDrugList, ...cList);
+  } else {
+    allDrugList.splice(0, allDrugList.length, ...defaultDrugList);
+  }
   Object.assign(currentDrugData, deepClone(defaultDrugList[0]));
   InputWeightRef.value.clearWeight();
+  SelectDrugRef.value.resetPickerDom();
 }
+
+provide('refetchAllDrugList', refetchAllDrugList);
 
 // 格式化药物数据
 function formatDrugList(arr, clone) {
@@ -102,8 +116,8 @@ function formatDrugList(arr, clone) {
 
 // 选择药物数据
 const currentDrugData = reactive(deepClone(defaultDrugList[0]));
-watch(currentDrugData, () => {
-  console.log('changeDrug', currentDrugData);
+watch(currentDrugData, (val) => {
+  console.log('选择的药品：', val);
 });
 
 // 输入组件

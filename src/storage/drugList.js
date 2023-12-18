@@ -46,7 +46,7 @@ export const drugCalc = [
 export const doseTypeData = {
   std: {
     label: '单位 g',
-    theme: 'default',
+    theme: 'primary',
   },
   sm: {
     label: '单位 mg',

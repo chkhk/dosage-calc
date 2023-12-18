@@ -34,17 +34,6 @@
   >
   </t-dialog>
 
-  <teleport to="body">
-    <!-- 操作结果提示 -->
-    <t-message
-      v-model="handleTipShow"
-      :offset="['10px', '16px']"
-      :duration="2000"
-      :closeBtn="true"
-      :content="handleTipText"
-    />
-  </teleport>
-
   <t-divider align="left">
     <template #content>
       <div>
@@ -65,7 +54,14 @@
         }
       "
     >
-      <t-cell hover>
+      <t-cell
+        hover
+        @click="
+          () => {
+            changeDrugItem(item);
+          }
+        "
+      >
         <template #title>
           <div>
             <span style="margin-right: 15px">{{ item.name }}</span>
@@ -91,11 +87,11 @@
     <t-cell-group>
       <t-cell
         hover
-        v-for="(item, index) in props.defaultDrugList"
+        v-for="item in props.defaultDrugList"
         :key="item.id"
         @click="
           () => {
-            changeDefDrug(index);
+            changeDrugItem(item);
           }
         "
       >
@@ -118,10 +114,16 @@
     </t-cell-group>
   </div>
 
-  <EditDrug v-model="formShow" :formTitle="formTitle" @handleTip="handleTip" />
+  <EditDrug
+    v-model="formShow"
+    :formTitle="formTitle"
+    :editFormData="editFormData"
+    :editFormDataIndex="editFormDataIndex"
+  />
 </template>
 
 <script setup>
+import { Toast } from 'tdesign-mobile-vue';
 import EditDrug from './EditDrug.vue';
 import { doseTypeData } from '@/storage/drugList.js';
 import {
@@ -129,7 +131,7 @@ import {
   ErrorIcon,
   GestureLeftSlipIcon,
 } from 'tdesign-icons-vue-next';
-import { deepClone, getDrugLStorage, saveDrugLStorage } from '@/utils/utils';
+import { deepClone, saveDrugLStorage } from '@/utils/utils';
 
 const props = defineProps({
   defaultDrugList: Array,
@@ -142,8 +144,8 @@ const emit = defineEmits(['drugStoreChange', 'refetchAllDrugList']);
 const tipShow = ref(false);
 
 // 选择药品直接进入计算界面
-function changeDefDrug(index) {
-  emit('drugStoreChange', props.defaultDrugList[index]);
+function changeDrugItem(item) {
+  emit('drugStoreChange', item);
 }
 
 // 滑动时的菜单数据
@@ -184,23 +186,31 @@ function onConfirmDel() {
 const formShow = ref(false);
 // 标题
 const formTitle = ref('');
+// 编辑 form 数据
+const editFormData = ref(null);
+// 编辑 form 数据的下标
+const editFormDataIndex = ref(null);
 
 // 新增药品
 function addDrug() {
   formTitle.value = '新增药品';
-  console.log('add');
+  editFormData.value = null;
+  editFormDataIndex.value = null;
   formShow.value = true;
 }
 
 // 编辑自定义药品
 function editDrug(index) {
   formTitle.value = '编辑药品信息';
-  console.log('edit', index);
+  const originArr = toRefs(props.customDrugList);
+  editFormDataIndex.value = index;
+  editFormData.value = deepClone(originArr[index].value);
   formShow.value = true;
 }
 
 // 删除自定义药品
 function deleteDrug(index) {
+  console.log('删除的药品序号：', index);
   const originArr = toRefs(props.customDrugList);
   originArr.splice(index, 1);
   let newArr = [];
@@ -209,19 +219,13 @@ function deleteDrug(index) {
       return item.value;
     });
   }
-  console.log('new arr', newArr);
   saveDrugLStorage(newArr);
   emit('refetchAllDrugList');
-  handleTip('删除成功！');
-}
-
-// 操作结果提醒
-const handleTipText = ref('');
-const handleTipShow = ref(false);
-
-function handleTip(text) {
-  handleTipText.value = text;
-  handleTipShow.value = true;
+  Toast({
+    theme: 'success',
+    direction: 'column',
+    message: '删除成功',
+  });
 }
 </script>
 

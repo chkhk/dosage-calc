@@ -16,6 +16,7 @@
         @click="changeThemeMode"
       />
       <MenuUnfoldIcon
+        v-if="false"
         size="24px"
         style="margin-left: 10px"
         @click="menuVisible = !menuVisible"

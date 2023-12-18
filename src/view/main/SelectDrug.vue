@@ -29,7 +29,7 @@
     </t-cell>
   </t-cell-group>
 
-  <t-popup v-model="drugPickerShow" placement="bottom">
+  <t-popup v-if="drugPickerIf" v-model="drugPickerShow" placement="bottom">
     <t-picker
       title="选择药品"
       :columns="drugPickerColumns"
@@ -41,15 +41,16 @@
 </template>
 
 <script setup>
-import { drugList, doseTypeData } from '@/storage/drugList.js';
-import { deepClone } from '@/utils/utils';
+import { doseTypeData } from '@/storage/drugList.js';
+
+defineExpose({
+  resetPickerDom,
+});
 
 const props = defineProps({
   modelValue: Object,
   allDrugList: Array,
 });
-
-const emit = defineEmits(['update:modelValue']);
 
 const changeValue = computed(() => {
   const val = [props.modelValue.value];
@@ -65,8 +66,18 @@ function drugPickerColumns() {
   return arr;
 }
 
+// 确认选择时
 function onConfirm(val, content) {
   Object.assign(props.modelValue, props.allDrugList[content.index[0]]);
   drugPickerShow.value = false;
+}
+
+// 重置 dom
+const drugPickerIf = ref(true);
+function resetPickerDom() {
+  drugPickerIf.value = false;
+  nextTick(() => {
+    drugPickerIf.value = true;
+  });
 }
 </script>
