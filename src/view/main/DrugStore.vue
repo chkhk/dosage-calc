@@ -45,23 +45,12 @@
   </t-divider>
   <div>
     <t-swipe-cell
-      v-for="(item, index) in props.customDrugList"
+      v-for="item in props.customDrugList"
       :key="item.id"
       :right="swipeMenuList"
-      @click="
-        (e) => {
-          clickDrugMenu(index, e);
-        }
-      "
+      @click="clickDrugMenu(item, $event)"
     >
-      <t-cell
-        hover
-        @click="
-          () => {
-            changeDrugItem(item);
-          }
-        "
-      >
+      <t-cell hover @click="changeDrugItem(item)">
         <template #title>
           <div>
             <span style="margin-right: 15px">{{ item.name }}</span>
@@ -89,11 +78,7 @@
         hover
         v-for="item in props.defaultDrugList"
         :key="item.id"
-        @click="
-          () => {
-            changeDrugItem(item);
-          }
-        "
+        @click="changeDrugItem(item)"
       >
         <template #title>
           <div>
@@ -164,7 +149,16 @@ const delTipShow = ref(false);
 // 删除提示文字
 const delTipText = ref('');
 // 点击自定义药品菜单
-function clickDrugMenu(index, e) {
+function clickDrugMenu(item, e) {
+  // 查找 index
+  let index;
+  for (let i = 0; i < props.customDrugList.length; i++) {
+    if (props.customDrugList[i].id === item.id) {
+      index = i;
+      break;
+    }
+  }
+  console.log('等待操作的药品序号：', index);
   if (e.action.text === '编辑') {
     editDrug(index);
   } else if (e.action.text === '删除') {
@@ -210,7 +204,6 @@ function editDrug(index) {
 
 // 删除自定义药品
 function deleteDrug(index) {
-  console.log('删除的药品序号：', index);
   const originArr = toRefs(props.customDrugList);
   originArr.splice(index, 1);
   let newArr = [];

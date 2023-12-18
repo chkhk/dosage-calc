@@ -18,7 +18,7 @@
       <MenuUnfoldIcon
         v-if="false"
         size="24px"
-        style="margin-left: 10px"
+        style="margin-left: 15px"
         @click="menuVisible = !menuVisible"
       />
     </template>
