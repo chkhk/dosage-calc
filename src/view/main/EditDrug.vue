@@ -26,6 +26,7 @@
       >
         <t-form-item label="名称" name="name" class="d-form-item">
           <t-input
+            ref="nameInputRef"
             v-model="formData.name"
             borderless
             :maxlength="10"
@@ -96,11 +97,19 @@ const emit = defineEmits(['update:modelValue']);
 // 是否显示编辑弹框
 const showEditPop = ref(false);
 
+// 自动聚焦名字框
+const nameInputRef = ref(null);
+
 // popup组件必须是v-model绑定才能支持点击遮罩关闭，因为 props 是单向的
 watch(
   () => props.modelValue,
   (val) => {
     showEditPop.value = val;
+    if (val) {
+      nextTick(() => {
+        nameInputRef.value.focus();
+      });
+    }
   },
   {
     immediate: true,

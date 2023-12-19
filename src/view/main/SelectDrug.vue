@@ -34,7 +34,7 @@
       title="选择药品"
       :columns="drugPickerColumns"
       :value="changeValue"
-      @cancel="drugPickerShow = false"
+      @cancel="() => (drugPickerShow = false)"
       @confirm="onConfirm"
     />
   </t-popup>
@@ -52,13 +52,31 @@ const props = defineProps({
   allDrugList: Array,
 });
 
-const changeValue = computed(() => {
-  const val = [props.modelValue.value];
-  return val;
-});
-
 // 显示选择器
 const drugPickerShow = ref(false);
+
+// 保存标识
+let saveState = false;
+// 刷新标识
+const resetData = ref(false);
+
+const changeValue = computed(() => {
+  return resetData.value ? ['drug0'] : [props.modelValue.value];
+});
+
+// 每次取消选择时，重新选择当前药品
+watch(drugPickerShow, (val) => {
+  if (val) {
+    saveState = false;
+  } else {
+    if (!saveState) {
+      resetData.value = true;
+      nextTick(() => {
+        resetData.value = false;
+      });
+    }
+  }
+});
 
 // 设置显示的字段
 function drugPickerColumns() {
@@ -69,10 +87,11 @@ function drugPickerColumns() {
 // 确认选择时
 function onConfirm(val, content) {
   Object.assign(props.modelValue, props.allDrugList[content.index[0]]);
+  saveState = true;
   drugPickerShow.value = false;
 }
 
-// 重置 dom
+// 重置 dom，因为数据列表删除时最下面的空白行也能选中
 const drugPickerIf = ref(true);
 function resetPickerDom() {
   drugPickerIf.value = false;

@@ -4,8 +4,14 @@ import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import { TDesignResolver } from 'unplugin-vue-components/resolvers';
+
+// https://github.com/vbenjs/vite-plugin-html/blob/main/README.zh_CN.md
 import { createHtmlPlugin } from 'vite-plugin-html';
-import { compression } from 'vite-plugin-compression2';
+
+// https://github.com/nonzzz/vite-plugin-compression
+// import { compression } from 'vite-plugin-compression2';
+
+// vite 插件合集 https://github.com/vitejs/awesome-vite#plugins
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -37,7 +43,19 @@ export default defineConfig({
     createHtmlPlugin({
       minify: true,
     }),
-    compression(),
+    /*     compression({
+      // include: ,
+      // 排除
+      exclude: [/\.(br)$/, /\.(gz)$/],
+      // 最大文件大小，超出会生成压缩包
+      // threshold: ,
+      // 压缩算法 brotliCompress
+      algorithm: 'gzip',
+      // 是否删除原有资产
+      deleteOriginalAssets: false,
+      // 如果压缩结果大于或者等于原始文件，是否跳过压缩
+      skipIfLargerOrEqual: true,
+    }), */
     // 自动引入插件
     AutoImport({
       // 自动引入 vue 的api
